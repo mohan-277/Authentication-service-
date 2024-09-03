@@ -6,6 +6,9 @@ import com.sbear.org.authenticationservice.entity.UserInfo;
 import com.sbear.org.authenticationservice.service.JwtService;
 import com.sbear.org.authenticationservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,10 +18,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:3000")
 public class HomeController {
 
 
@@ -42,8 +46,15 @@ public class HomeController {
     }
 
     @PostMapping("/signup")
-    public String addNewUser(@RequestBody UserInfo userInfo) {
-        return service.addUser(userInfo);
+    public ResponseEntity<?> addNewUser(@RequestBody UserInfo userInfo) {
+        String result = service.addUser(userInfo);
+
+        // Assuming the result is a success message or an error message
+        if ("user added to system ".equals(result)) {
+            return ResponseEntity.ok().body(Map.of("message" , result)); // Return JSON with success message
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", result)); // Return JSON with error message
+        }
     }
 
     @GetMapping("/all")
