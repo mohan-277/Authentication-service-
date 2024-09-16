@@ -6,18 +6,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
-    @Autowired
-    private UserInfoRepository repository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserInfoRepository repository;
 
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserInfoRepository repository, PasswordEncoder passwordEncoder) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public String addUser(UserInfo userInfo) {
         userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
-        repository.save(userInfo);
-        return "user added to system ";
+        Optional<UserInfo> savedUser = repository.findByEmailAndName(userInfo.getEmail(),userInfo.getName());
+        if(savedUser.isPresent()){
+            return "User with this email and name already exists.";
+        }else {
+            repository.save(userInfo);
+            return "user added to system ";
+        }
     }
 }

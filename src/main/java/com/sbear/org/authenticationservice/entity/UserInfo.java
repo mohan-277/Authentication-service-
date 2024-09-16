@@ -21,4 +21,10 @@ public class UserInfo {
     private String email;
     private String password;
     private String roles;
+
+    public UserInfo(String username, String password, String user) {
+        this.name = username;
+        this.password = password;
+        this.roles = user;
+    }
 }

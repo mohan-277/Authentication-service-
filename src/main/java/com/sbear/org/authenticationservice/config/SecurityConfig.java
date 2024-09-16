@@ -1,8 +1,6 @@
 package com.sbear.org.authenticationservice.config;
 
 import com.sbear.org.authenticationservice.filter.JwtAuthFilter;
-import jakarta.servlet.Filter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,21 +21,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    @Autowired
-    private JwtAuthFilter authFilter;
+
+
+    JwtAuthFilter authFilter;
+
+    public SecurityConfig(JwtAuthFilter authFilter) {
+        this.authFilter = authFilter;
+    }
 
     @Bean
-    //authentication
     public UserDetailsService userDetailsService() {
-//        UserDetails admin = User.withUsername("Basant")
-//                .password(encoder.encode("Pwd1"))
-//                .roles("ADMIN")
-//                .build();
-//        UserDetails user = User.withUsername("John")
-//                .password(encoder.encode("Pwd2"))
-//                .roles("USER","ADMIN","HR")
-//                .build();
-//        return new InMemoryUserDetailsManager(admin, user);
         return new UserInfoUserDetailsService();
     }
 
@@ -45,9 +38,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/signup","/auth/authenticate").permitAll()
+                .requestMatchers("/api/auth/register","/api/auth/login").permitAll()
                 .and()
-                .authorizeHttpRequests().requestMatchers("/auth/**")
+                .authorizeHttpRequests().requestMatchers("/api/auth/**")
                 .authenticated().and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -56,6 +49,7 @@ public class SecurityConfig {
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
